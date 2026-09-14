@@ -1,7 +1,7 @@
-import { FlatList, View, StyleSheet, Text } from "react-native";
+import { FlatList, View, StyleSheet, Text, ListRenderItem } from "react-native";
 import {mockAssets} from "../constants/mockAssets";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-
+import { Asset } from "../models/Asset";
 
 
 
@@ -11,9 +11,9 @@ export default function DisplayList(){
             <SafeAreaView style = {styles.container}>
                 <FlatList
                     data = {mockAssets}
-                    renderItem = {({ item }) => {
+                    renderItem = {({ item  } : { item : Asset}) => {
                         return (
-                            <View style = {styles.item} key={item.id}>
+                            <View style = {styles.item} key={item.assetId}>
                                 <Text style = {styles.name}>{item.buildingName}</Text>
                             </View>
                         )

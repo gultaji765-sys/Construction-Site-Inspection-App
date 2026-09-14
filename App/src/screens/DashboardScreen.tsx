@@ -1,7 +1,15 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Button} from 'react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+type RootStackList = {
 
+  Dashboard: undefined;
+    AssetList: undefined;
+  
+}
 export default function DashboardScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackList>>();
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Dashboard</Text>
@@ -9,6 +17,8 @@ export default function DashboardScreen() {
       <Text style={styles.subtitle}>
         Construction Site Inspection Platform
       </Text>
+      <Button title = "List of Assets"
+              onPress  = {() => navigation.navigate('AssetList')} />
     </View>
   );
 }
@@ -29,5 +39,8 @@ const styles = StyleSheet.create({
 
   subtitle: {
     fontSize: 16,
+    marginBottom: 10
   },
+
+  
 });
