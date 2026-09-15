@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 type RootStackList = {
 
   Dashboard: undefined;
-    AssetList: undefined;
+  AssetList: undefined;
   
 }
 export default function DashboardScreen() {
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    
   },
 
   title: {
