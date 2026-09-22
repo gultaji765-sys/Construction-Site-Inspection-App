@@ -2,12 +2,9 @@ import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import {View, Text, StyleSheet, Button} from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-type RootStackList = {
+import { RootStackList } from '../navigation/types';
+import {colors, spacing, typography} from '../theme'
 
-  Dashboard: undefined;
-  AssetList: undefined;
-  
-}
 export default function DashboardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackList>>();
   return (
@@ -28,7 +25,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    
+    padding: 24,
   },
 
   title: {

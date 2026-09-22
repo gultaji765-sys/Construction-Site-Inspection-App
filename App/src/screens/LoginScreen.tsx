@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet, Button, TextInput} from 'react-native';
-
+import {colors, spacing, typography} from '../theme'
 type Props = {
   onLogin: () => void;
   
@@ -11,9 +11,7 @@ export default function LoginScreen({onLogin}: Props) {
     <View style={styles.container}>
       <Text style={styles.title}>Site Inspection</Text>
         
-        
-    
-      <Button
+      <Button 
         title="Authenticate"
         onPress={onLogin}
       />

@@ -1,15 +1,20 @@
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, Pressable } from "react-native";
 import { Asset } from "../models/Asset";
+import { RootStackList } from "../navigation/types"
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import  AssetDetails  from "../screens/AssetDetailsScreen";
+import {colors, spacing, typography} from '../theme'
 
 type AssetCardProps = {
     asset: Asset
-}
-
+} 
 export default function AssetCard({asset} : AssetCardProps){
-
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackList>>();
     return (
-        <View style = {styles.container}>
-            <View style = {styles.Card}>
+        <Pressable onPress={() => navigation.navigate("AssetDetails",{asset})}>
+            <View style = {styles.container}>
+            <View style = {styles.detailsCard}>
                 <Text style = {styles.name}>
                     {asset.buildingName}
                     <Text style={styles.id}>  ID{asset.assetId}</Text>
@@ -26,24 +31,27 @@ export default function AssetCard({asset} : AssetCardProps){
 
             </View>
         </View>
+        </Pressable>
+        
     )
 }
 
 const styles = StyleSheet.create({
     container:{
         flex: 1,
-        justifyContent: 'space-around',
-        padding: 10,
-        backgroundColor: '#FAFAF7'
+        backgroundColor: colors.background,
+        paddingHorizontal: 5
     },
-    Card: {
-        flex: 1,
-        padding: 10,
-        elevation: 5,
-        borderRadius: 12,
-        backgroundColor: '#E8E4D8',
-        flexDirection: 'column',
-        
+    detailsCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
     },
     text: {
         fontSize: 16,

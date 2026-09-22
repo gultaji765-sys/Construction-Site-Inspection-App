@@ -14,6 +14,9 @@ import { Asset } from '../models/Asset';
 import AssetCard from '../components/AssetCard';
 import { Dispatch, SetStateAction, useState } from 'react';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackList } from '../navigation/types';
+import { colors, spacing, typography } from '../theme';
 
 const filterByData = (
   zone: string,
@@ -22,24 +25,27 @@ const filterByData = (
   searchText: string,
 ) => {
   const result = mockAssets.filter(item => {
-  return (
-    (zone === '' ||
-      item.zone.toLowerCase().includes(zone.toLowerCase())) &&
-    (stage === '' ||
-      item.constructionStage.toLowerCase().includes(stage.toLowerCase())) &&
-    (status === '' ||
-      item.inspectionStatus.toLowerCase().includes(status.toLowerCase())) &&
-    (searchText === '' ||
-      item.buildingName.toLowerCase().includes(searchText.toLowerCase()))
-  );
+    return (
+      (zone === '' || item.zone.toLowerCase().includes(zone.toLowerCase())) &&
+      (stage === '' ||
+        item.constructionStage.toLowerCase().includes(stage.toLowerCase())) &&
+      (status === '' ||
+        item.inspectionStatus.toLowerCase().includes(status.toLowerCase())) &&
+      (searchText === '' ||
+        item.buildingName.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.buildingCode.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.projectId
+          .toString()
+          .toLowerCase()
+          .includes(searchText.toLowerCase()))
+    );
   });
   return result;
 };
 
-
-const closePanel = (setShowSortOptions : Dispatch<SetStateAction<boolean>>) => {
-  setShowSortOptions(false)
-}
+const closePanel = (setShowSortOptions: Dispatch<SetStateAction<boolean>>) => {
+  setShowSortOptions(false);
+};
 
 export default function DisplayList() {
   const [searchText, setSearchText] = useState('');
@@ -52,66 +58,52 @@ export default function DisplayList() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignContent: 'space-evenly',
-            marginBottom: 10,
-          }}
-        >
+        <View style={styles.toolbar}>
           <View style={styles.input}>
-            <MaterialIcons name="search" size={26} style={{ padding: 5 }} />
+            <MaterialIcons name="search" size={24} color={colors.textSecondary} />
             <TextInput
               value={searchText}
-              onChangeText={text => {
-                setSearchText(text);
-              }}
+              onChangeText={setSearchText}
               placeholder="Enter building name"
-              keyboardType="default"
+              placeholderTextColor={colors.textTertiary}
+              style={styles.searchInput}
             />
           </View>
+
           <Pressable
-            onPress={() => {
-              setShowSortOptions(!showSortOptions);
-            }}
-            style={{
-              flexDirection: 'row',
-              opacity: showSortOptions ? 0.5 : 1,
-              flex: 0.5,
-              padding: 5,
-              marginRight: 10,
-            }}
+            onPress={() => setShowSortOptions(!showSortOptions)}
+            style={[
+              styles.filterButton,
+              showSortOptions && styles.filterButtonActive,
+            ]}
           >
-            <Text
-              style={{
-                fontSize: 20,
-                marginLeft: 25,
-              }}
-            >
-              Filter
-            </Text>
-            <MaterialIcons
-              name="import-export"
-              size={25}
-              style={{ padding: 5 }}
-            />
+            <Text style={styles.filterText}>Filter</Text>
+            <MaterialIcons name="tune" size={23} color={colors.primary} />
           </Pressable>
         </View>
-        {filteredData.length !== 0? (
+        {filteredData.length !== 0 ? (
           <FlatList
-          numColumns={2}
-          data={filteredData}
-          renderItem={({ item }: { item: Asset }) => <AssetCard asset={item} />}
-          keyExtractor={item => item.assetId.toString()}
-        />
-        ): (
-          <View style={{alignItems: 'center', justifyContent: 'center', flex: 0.5}}>
-            <Text style={{fontSize: 40, color: '#ca9898dd'}}>
+            numColumns={2}
+            data={filteredData}
+            renderItem={({ item }: { item: Asset }) => (
+              <AssetCard asset={item} />
+            )}
+            keyExtractor={item => item.assetId.toString()}
+          />
+        ) : (
+          <View
+            style={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: 0.5,
+            }}
+          >
+            <Text style={{ fontSize: 40, color: '#ca9898dd' }}>
               No Data Found
             </Text>
           </View>
         )}
-    
+
         {showSortOptions && (
           <View style={styles.overlay}>
             <Pressable
@@ -119,66 +111,162 @@ export default function DisplayList() {
               onPress={() => closePanel(setShowSortOptions)}
             />
             <View style={styles.filterPanel}>
-              <Text style={{ fontSize: 25, marginLeft: 10, textAlign: 'center' }}>
+              <Text
+                style={{ fontSize: 25, marginLeft: 10, textAlign: 'center' }}
+              >
                 Filter By
               </Text>
               <Text style={styles.filterItem}>Construction Stage</Text>
-              <View style={{ marginLeft: 25, marginTop: 10}}>
-                <Pressable onPress={() => {setStage('Stage 1')}} style={{flexDirection: 'row'}}>
-                  <MaterialIcons name={stage === "Stage 1"? "radio-button-on" : "radio-button-off" }size={24} />
+              <View style={{ marginLeft: 25, marginTop: 10 }}>
+                <Pressable
+                  onPress={() => {
+                    setStage('Stage 1');
+                  }}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <MaterialIcons
+                    name={
+                      stage === 'Stage 1'
+                        ? 'radio-button-on'
+                        : 'radio-button-off'
+                    }
+                    size={24}
+                    color=''
+                  />
                   <Text style={styles.filterOptions}>Stage 1</Text>
                 </Pressable>
               </View>
-              <View style={{ marginLeft: 25, marginTop: 10}}>
-                <Pressable onPress={() => {setStage('Stage 2')}} style={{flexDirection: 'row'}}>
-                  <MaterialIcons 
-                  name={stage === "Stage 2"? "radio-button-on" : "radio-button-off" }size={24} />
+              <View style={{ marginLeft: 25, marginTop: 10 }}>
+                <Pressable
+                  onPress={() => {
+                    setStage('Stage 2');
+                  }}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <MaterialIcons
+                    name={
+                      stage === 'Stage 2'
+                        ? 'radio-button-on'
+                        : 'radio-button-off'
+                    }
+                    size={24}
+                  />
                   <Text style={styles.filterOptions}>Stage 2</Text>
                 </Pressable>
               </View>
-              <View style={{ marginLeft: 25, marginTop: 10}}>
-                <Pressable onPress={() => {setStage('Stage 3')}} style={{flexDirection: 'row'}}>
-                  <MaterialIcons name={stage === "Stage 3"? "radio-button-on" : "radio-button-off" }size={24} />
+              <View style={{ marginLeft: 25, marginTop: 10 }}>
+                <Pressable
+                  onPress={() => {
+                    setStage('Stage 3');
+                  }}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <MaterialIcons
+                    name={
+                      stage === 'Stage 3'
+                        ? 'radio-button-on'
+                        : 'radio-button-off'
+                    }
+                    size={24}
+                  />
                   <Text style={styles.filterOptions}>Stage 3</Text>
                 </Pressable>
               </View>
               <Text style={styles.filterItem}>Inspection Status</Text>
-              <View style={{ marginLeft: 25, marginTop: 10}}>
-                <Pressable onPress={() => setStatus('Due')} style={{flexDirection: 'row'}}>
-                  <MaterialIcons name={status === "Due"? "radio-button-on" : "radio-button-off" }size={24}  />
+              <View style={{ marginLeft: 25, marginTop: 10 }}>
+                <Pressable
+                  onPress={() => setStatus('Due')}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <MaterialIcons
+                    name={
+                      status === 'Due' ? 'radio-button-on' : 'radio-button-off'
+                    }
+                    size={24}
+                  />
                   <Text style={{ fontSize: 20, marginLeft: 10 }}>Due</Text>
                 </Pressable>
               </View>
-              <View style={{ marginLeft: 25, marginTop: 10, flexDirection: 'row' }}>
-                <Pressable onPress={() => setStatus('Pending')} style={{flexDirection: 'row'}}>
-                  <MaterialIcons name={status === "Pending"? "radio-button-on" : "radio-button-off" }size={24}   />
+              <View
+                style={{ marginLeft: 25, marginTop: 10, flexDirection: 'row' }}
+              >
+                <Pressable
+                  onPress={() => setStatus('Pending')}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <MaterialIcons
+                    name={
+                      status === 'Pending'
+                        ? 'radio-button-on'
+                        : 'radio-button-off'
+                    }
+                    size={24}
+                  />
                   <Text style={{ fontSize: 20, marginLeft: 10 }}>Pending</Text>
                 </Pressable>
               </View>
-              <View style={{ marginLeft: 25, marginTop: 10}}>
-                <Pressable onPress={() => setStatus('Completed')} style={{flexDirection: 'row'}}>
-                  <MaterialIcons name={status === "Completed"? "radio-button-on" : "radio-button-off" }size={24}  />
+              <View style={{ marginLeft: 25, marginTop: 10 }}>
+                <Pressable
+                  onPress={() => setStatus('Completed')}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <MaterialIcons
+                    name={
+                      status === 'Completed'
+                        ? 'radio-button-on'
+                        : 'radio-button-off'
+                    }
+                    size={24}
+                  />
                   <Text style={{ fontSize: 20, marginLeft: 10 }}>
                     Completed
                   </Text>
                 </Pressable>
               </View>
               <Text style={styles.filterItem}>Zone</Text>
-              <View style={{ marginLeft: 25, marginTop: 10}}>
-                <Pressable onPress={() => setZone('Zone 1')} style={{flexDirection: 'row'}}>
-                  <MaterialIcons name={zone === "Zone 1"? "radio-button-on" : "radio-button-off" }size={24}  />
+              <View style={{ marginLeft: 25, marginTop: 10 }}>
+                <Pressable
+                  onPress={() => setZone('Zone 1')}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <MaterialIcons
+                    name={
+                      zone === 'Zone 1' ? 'radio-button-on' : 'radio-button-off'
+                    }
+                    size={24}
+                  />
                   <Text style={{ fontSize: 20, marginLeft: 10 }}>Zone 1</Text>
                 </Pressable>
               </View>
-              <View style={{ marginLeft: 25, marginTop: 10, flexDirection: 'row' }}>
-                <Pressable onPress={() => setZone('Zone 2')} style={{flexDirection: 'row'}}>
-                  <MaterialIcons name={zone === "Zone 2"? "radio-button-on" : "radio-button-off" }size={24} />
+              <View
+                style={{ marginLeft: 25, marginTop: 10, flexDirection: 'row' }}
+              >
+                <Pressable
+                  onPress={() => setZone('Zone 2')}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <MaterialIcons
+                    name={
+                      zone === 'Zone 2' ? 'radio-button-on' : 'radio-button-off'
+                    }
+                    size={24}
+                  />
                   <Text style={{ fontSize: 20, marginLeft: 10 }}>Zone 2</Text>
                 </Pressable>
               </View>
-              <View style={{ marginLeft: 25, marginTop: 10, flexDirection: 'row' }}>
-                <Pressable onPress={() => setZone('Zone 3')} style={{flexDirection: 'row'}}>
-                  <MaterialIcons name={zone === "Zone 3"? "radio-button-on" : "radio-button-off" }size={24}  />
+              <View
+                style={{ marginLeft: 25, marginTop: 10, flexDirection: 'row' }}
+              >
+                <Pressable
+                  onPress={() => setZone('Zone 3')}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <MaterialIcons
+                    name={
+                      zone === 'Zone 3' ? 'radio-button-on' : 'radio-button-off'
+                    }
+                    size={24}
+                  />
                   <Text style={{ fontSize: 20, marginLeft: 10 }}>Zone 3</Text>
                 </Pressable>
               </View>
@@ -189,8 +277,7 @@ export default function DisplayList() {
                   width: 80,
                   borderRadius: 15,
                   marginTop: 20,
-                  justifyContent: 'space-evenly'
-
+                  justifyContent: 'space-evenly',
                 }}
               >
                 <Button
@@ -199,9 +286,11 @@ export default function DisplayList() {
                 />
                 <Button
                   title="clear"
-                  onPress={() => {setZone('')
-                    setStage('')
-                    setStatus('')}}
+                  onPress={() => {
+                    setZone('');
+                    setStage('');
+                    setStatus('');
+                  }}
                 />
               </View>
             </View>
@@ -214,35 +303,78 @@ export default function DisplayList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    backgroundColor: colors.background,
+    padding: spacing.md,
   },
-  item: {
+  toolbar: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ebdcdcdd',
-    padding: 20,
-    margin: 20,
-  },
-  name: {
-    fontSize: 28,
-    fontWeight: 'semibold',
-    fontStyle: 'italic',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
   input: {
-    height: 40,
-    borderWidth: 2,
-    borderRadius: 15,
     flex: 1,
-    color: 'red',
+    height: 46,
     flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: spacing.md,
+    paddingHorizontal: spacing.sm,
+  },
+  searchInput: {
+    ...typography.body,
+    flex: 1,
+    color: colors.textSecondary,
+    paddingHorizontal: spacing.sm,
+  },
+  filterButton: {
+    minHeight: 46,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  filterButtonActive: {
+    opacity: 0.55,
+  },
+  filterText: {
+    ...typography.body,
+    color: colors.primary,
+    fontWeight: '700',
   },
   filterPanel: {
     position: 'absolute',
     right: 0,
     top: 0,
     bottom: 0,
-    width: '70%',
-    backgroundColor: 'white',
+    width: '78%',
+    backgroundColor: colors.surface,
+    padding: spacing.md,
+  },
+  filterItem: {
+    ...typography.body,
+    color: colors.textSecondary,
+    fontWeight: '700',
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  filterOptions: {
+    ...typography.body,
+    color: colors.textPrimary,
+    marginLeft: spacing.sm,
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    width: '22%',
   },
   overlay: {
     position: 'absolute',
@@ -250,21 +382,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-  },
-  filterItem: {
-    fontSize: 20,
-    margin: 10,
-  },
-  filterOptions: {
-    fontSize: 18,
-    marginLeft: 10,
-  },
-  background: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    width: '30%',
+    backgroundColor: 'rgb(0,0,0,0.3)',
   },
 });
