@@ -26,7 +26,7 @@ export default function AssetCard({asset} : AssetCardProps){
                     {asset.constructionStage}
                 </Text>
                 <Text style = {styles.text}>
-                    Status : {asset.inspectionStatus}
+                    {asset.inspectionStatus}
                 </Text>
 
             </View>

@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   statusText: {
-    color: '#287A43',
+    color: colors.success,
     fontSize: 15,
     fontWeight: '700',
   },

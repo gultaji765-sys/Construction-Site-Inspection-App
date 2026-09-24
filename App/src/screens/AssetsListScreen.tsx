@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    width: '78%',
+    width: '70%',
     backgroundColor: colors.surface,
     padding: spacing.md,
   },
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     left: 0,
-    width: '22%',
+    width: '30%',
   },
   overlay: {
     position: 'absolute',
@@ -384,4 +384,5 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgb(0,0,0,0.3)',
   },
+  
 });
