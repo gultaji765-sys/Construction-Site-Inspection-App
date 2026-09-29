@@ -1,17 +1,17 @@
 export interface Asset {
-    assetId: number;
-    projectId: number;
-    buildingName: string;
-    buildingCode: string;
-    floorNo: number;
+    asset_id: number;
+    project_id: number;
+    building_name: string;
+    building_code: string;
+    floor_number: number;
     zone: string;
-    gpsLatitude: number;
-    gpsLongitude: number;
-    constructionStage: string;
-    inspectionStatus: string;
+    gps_latitude: number;
+    gps_longitude: number;
+    construction_stage: string;
+    inspection_status: string;
     notes: string;
-    isDeleted: boolean;
-    createdAt: string;
-    updatedAt: string;
+    is_deleted: number;
+    created_at: string;
+    updated_at: string;
 }
 

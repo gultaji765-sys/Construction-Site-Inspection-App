@@ -4,6 +4,13 @@ export  type RootStackList = {
   Dashboard: undefined;
   AssetList: undefined;
   AssetDetails: {
-    asset: Asset;
+    asset_id: number;
   };
+  AssetForm: {
+    mode: 'create' | 'edit';
+    assetId? : number
+  }
 };
+
+
+

@@ -6,6 +6,7 @@ import DashboardScreen from '../screens/DashboardScreen';
 import AssetsListScreen from '../screens/AssetsListScreen'
 import { useNavigation } from '@react-navigation/native';
 import AssetDetailsScreen from '../screens/AssetDetailsScreen';
+import AssetFormScreen from '../screens/AssetFormScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -28,6 +29,7 @@ export default function AppNavigator() {
       )}
       <Stack.Screen name="AssetList" component={AssetsListScreen}/>
       <Stack.Screen name="AssetDetails" component={AssetDetailsScreen}/>
+      <Stack.Screen name="AssetForm" component={AssetFormScreen}/>
     </Stack.Navigator>
    
   );

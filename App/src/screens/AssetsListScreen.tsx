@@ -8,33 +8,34 @@ import {
   Pressable,
   Button,
 } from 'react-native';
-import { mockAssets } from '../constants/mockAssets';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Asset } from '../models/Asset';
 import AssetCard from '../components/AssetCard';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useState, useCallback } from 'react';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { colors, spacing, typography } from '../theme';
+import { getAssets } from '../repositories/buildingAssets';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackList } from '../navigation/types';
-import { colors, spacing, typography } from '../theme';
-
 const filterByData = (
   zone: string,
   status: string,
   stage: string,
   searchText: string,
+  data: Asset[],
 ) => {
-  const result = mockAssets.filter(item => {
+  const result = data.filter(item => {
     return (
       (zone === '' || item.zone.toLowerCase().includes(zone.toLowerCase())) &&
       (stage === '' ||
-        item.constructionStage.toLowerCase().includes(stage.toLowerCase())) &&
+        item.construction_stage.toLowerCase().includes(stage.toLowerCase())) &&
       (status === '' ||
-        item.inspectionStatus.toLowerCase().includes(status.toLowerCase())) &&
+        item.inspection_status.toLowerCase().includes(status.toLowerCase())) &&
       (searchText === '' ||
-        item.buildingName.toLowerCase().includes(searchText.toLowerCase()) ||
-        item.buildingCode.toLowerCase().includes(searchText.toLowerCase()) ||
-        item.projectId
+        item.building_name.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.building_code.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.project_id
           .toString()
           .toLowerCase()
           .includes(searchText.toLowerCase()))
@@ -53,14 +54,34 @@ export default function DisplayList() {
   const [status, setStatus] = useState('');
   const [stage, setStage] = useState('');
   const [showSortOptions, setShowSortOptions] = useState(false);
-  const filteredData = filterByData(zone, status, stage, searchText);
+  const [data, setData] = useState<Asset[]>([]);
+
+  const result = filterByData(zone, status, stage, searchText, data);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackList>>()
+  useFocusEffect(
+    useCallback(() => {
+      const loadAssets = async () => {
+      try {
+        const assets = await getAssets();
+        setData(assets);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    loadAssets();
+    }, [])
+  )
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <View style={styles.toolbar}>
           <View style={styles.input}>
-            <MaterialIcons name="search" size={24} color={colors.textSecondary} />
+            <MaterialIcons
+              name="search"
+              size={24}
+              color={colors.textSecondary}
+            />
             <TextInput
               value={searchText}
               onChangeText={setSearchText}
@@ -81,14 +102,14 @@ export default function DisplayList() {
             <MaterialIcons name="tune" size={23} color={colors.primary} />
           </Pressable>
         </View>
-        {filteredData.length !== 0 ? (
+        {result.length !== 0 ? (
           <FlatList
             numColumns={2}
-            data={filteredData}
+            data={result}
             renderItem={({ item }: { item: Asset }) => (
               <AssetCard asset={item} />
             )}
-            keyExtractor={item => item.assetId.toString()}
+            keyExtractor={item => item.asset_id.toString()}
           />
         ) : (
           <View
@@ -104,7 +125,7 @@ export default function DisplayList() {
           </View>
         )}
 
-        {showSortOptions && (
+        {showSortOptions ? (
           <View style={styles.overlay}>
             <Pressable
               style={styles.background}
@@ -131,7 +152,7 @@ export default function DisplayList() {
                         : 'radio-button-off'
                     }
                     size={24}
-                    color=''
+                    color=""
                   />
                   <Text style={styles.filterOptions}>Stage 1</Text>
                 </Pressable>
@@ -295,12 +316,36 @@ export default function DisplayList() {
               </View>
             </View>
           </View>
+        ) : (
+          <View style={styles.floatingIcon}>
+            <Pressable
+              onPress={() => {
+                navigation.navigate('AssetForm', {
+                  mode: 'create',
+                });
+              }}>
+               <MaterialIcons name="add-home" color={colors.primary} size={50} />
+            </Pressable>
+          </View>
         )}
       </SafeAreaView>
     </SafeAreaProvider>
   );
 }
 const styles = StyleSheet.create({
+  floatingIcon: {
+    alignSelf: 'flex-end',
+    height: 70,
+    width: 70,
+    borderWidth: 1,
+    borderRadius: spacing.lg,
+    borderColor: colors.borderDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 80,
+    marginRight: 10,
+    backgroundColor: colors.primaryLight,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -384,5 +429,4 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'rgb(0,0,0,0.3)',
   },
-  
 });

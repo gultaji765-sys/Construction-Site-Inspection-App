@@ -12,21 +12,21 @@ type AssetCardProps = {
 export default function AssetCard({asset} : AssetCardProps){
     const navigation = useNavigation<NativeStackNavigationProp<RootStackList>>();
     return (
-        <Pressable onPress={() => navigation.navigate("AssetDetails",{asset})}>
+        <Pressable onPress={() => navigation.navigate("AssetDetails",{asset_id : asset.asset_id})}>
             <View style = {styles.container}>
             <View style = {styles.detailsCard}>
                 <Text style = {styles.name}>
-                    {asset.buildingName}
-                    <Text style={styles.id}>  ID{asset.assetId}</Text>
+                    {asset.building_name}
+                    <Text style={styles.id}>  ID{asset.asset_id}</Text>
                 </Text>
                 <Text style = {styles.text}>
-                    {asset.buildingCode}
+                    {asset.building_code}
                 </Text>
                 <Text style = {styles.text}>
-                    {asset.constructionStage}
+                    {asset.construction_stage}
                 </Text>
                 <Text style = {styles.text}>
-                    {asset.inspectionStatus}
+                    {asset.inspection_status}
                 </Text>
 
             </View>
