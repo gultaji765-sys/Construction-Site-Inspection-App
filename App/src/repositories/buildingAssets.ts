@@ -66,7 +66,7 @@ export async function getAssets(): Promise<Asset[]>{
     try {
         const db = await getDb();
         const {rows}   = await db.executeAsync(`
-        SELECT * FROM BuildingAssets`);
+        SELECT * FROM BuildingAssets WHERE is_deleted = 0`);
         return rows._array.map(row => ({
             asset_id: Number(row.asset_id),
             project_id: Number(row.project_id),

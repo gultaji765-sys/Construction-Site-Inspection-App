@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getAssetById, createAsset, updateAsset, deleteAsset } from '../repositories/buildingAssets';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { getLocation } from '../services/locationServices'
 
 type AssetDetailsRouteProp = RouteProp<
   RootStackList,
@@ -17,7 +18,6 @@ export default function AssetDetails() {
   const { params } = useRoute<AssetDetailsRouteProp>();
   const [asset, setAsset] = useState<Asset | null>(null);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackList>>();
-  
   useFocusEffect(
       useCallback(() => {
         const loadAsset = async () => {

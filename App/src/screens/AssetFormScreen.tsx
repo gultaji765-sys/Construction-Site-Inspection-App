@@ -1,6 +1,7 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Pressable,
   ScrollView,
@@ -20,6 +21,8 @@ import {
   updateAsset,
 } from '../repositories/buildingAssets';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { getLocation } from '../services/locationServices';
+import { PermissionsAndroid, Platform } from 'react-native';
 
 type AssetFormRouteProp = RouteProp<RootStackList, 'AssetForm'>;
 const projects = [234, 345, 456, 678].map(projectId => ({
@@ -114,7 +117,6 @@ async function handleSave(
           onPress: () => navigation.goBack(),
         },
       ]);
-      
     } else {
       await createAsset(
         Number(project),
@@ -129,7 +131,7 @@ async function handleSave(
         notes,
         0,
         'here',
-        'wtf'
+        'wtf',
       );
       Alert.alert('Success', 'Asset Created Successfully', [
         {
@@ -144,6 +146,22 @@ async function handleSave(
   }
 }
 
+const requestLocationPermission = async () => {
+  if (Platform.OS !== 'android') return false;
+
+  const result = await PermissionsAndroid.requestMultiple([
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+  ]);
+
+  return (
+    result[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] ===
+      PermissionsAndroid.RESULTS.GRANTED ||
+    result[PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION] ===
+      PermissionsAndroid.RESULTS.GRANTED
+  );
+};
+
 export default function AssetFormScreen() {
   const { params } = useRoute<AssetFormRouteProp>();
   const [project, setProject] = useState<string>('');
@@ -154,10 +172,11 @@ export default function AssetFormScreen() {
   const [zone, setZone] = useState('');
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
+  const [isLocating, setIsLocating] = useState(false);
   const [notes, setNotes] = useState('');
-
   const isEditing = params.mode === 'edit';
   const navigation = useNavigation<NativeStackNavigationProp<RootStackList>>();
+  
   useEffect(() => {
     if (isEditing && params.assetId !== undefined) {
       const asset_id = params.assetId;
@@ -170,6 +189,9 @@ export default function AssetFormScreen() {
           setFloorNumber(String(getParams?.floor_number));
           setZone(String(getParams?.zone));
           setStage(String(getParams?.construction_stage));
+          setLatitude(String(getParams?.gps_latitude));
+          setLongitude(String(getParams?.gps_longitude));
+          setNotes(String(getParams?.notes));
         } catch (error) {
           console.log(error);
         }
@@ -177,6 +199,36 @@ export default function AssetFormScreen() {
       getValues();
     }
   }, []);
+
+  const getCoordinates = async () => {
+    setIsLocating(true);
+
+    try {
+      const hasPermission = await requestLocationPermission();
+
+      if (!hasPermission) {
+        Alert.alert(
+          'Permission required',
+          'Location permission is required to capture coordinates.',
+        );
+        return;
+      }
+
+      const location = await getLocation();
+
+      setLatitude(String(location.latitude));
+      setLongitude(String(location.longitude));
+    } catch (error) {
+      Alert.alert(
+        'Location unavailable',
+        error instanceof Error
+          ? error.message
+          : 'Check your device location settings and try again.',
+      );
+    } finally {
+      setIsLocating(false);
+    }
+  };
 
   return (
     <ScrollView
@@ -303,13 +355,26 @@ export default function AssetFormScreen() {
               />
             </View>
           </View>
-          <Pressable style={styles.locationButton}>
-            <MaterialIcons
-              name="my-location"
-              size={18}
-              color={colors.primary}
-            />
-            <Text style={styles.locationButtonText}>Capture Location</Text>
+          <Pressable
+            style={[
+              styles.locationButton,
+              isLocating && styles.locationButtonDisabled,
+            ]}
+            onPress={getCoordinates}
+            disabled={isLocating}
+          >
+            {isLocating ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <MaterialIcons
+                name="my-location"
+                size={18}
+                color={colors.primary}
+              />
+            )}
+            <Text style={styles.locationButtonText}>
+              {isLocating ? 'Getting location...' : 'Capture Location'}
+            </Text>
           </Pressable>
         </View>
 
@@ -506,6 +571,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: spacing.md,
     gap: spacing.sm,
+  },
+  locationButtonDisabled: {
+    opacity: 0.6,
   },
   locationButtonText: {
     ...typography.label,

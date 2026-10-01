@@ -7,6 +7,7 @@ import {
   Alert,
   Pressable,
   Button,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Asset } from '../models/Asset';
@@ -14,7 +15,7 @@ import AssetCard from '../components/AssetCard';
 import { Dispatch, SetStateAction, useState, useCallback } from 'react';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing, typography } from '../theme';
-import { getAssets } from '../repositories/buildingAssets';
+import { deleteAsset, getAssets } from '../repositories/buildingAssets';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackList } from '../navigation/types';
@@ -72,6 +73,32 @@ export default function DisplayList() {
     }, [])
   )
 
+  const confirmDeleteAsset = (asset: Asset) => {
+    Alert.alert(
+      'Delete asset?',
+      `Delete ${asset.building_name}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            void deleteAsset(asset.asset_id)
+              .then(() => {
+                setData(current =>
+                  current.filter(item => item.asset_id !== asset.asset_id),
+                );
+              })
+              .catch(error => {
+                console.error('Failed to delete asset:', error);
+                Alert.alert('Delete failed', 'The asset could not be deleted.');
+              });
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -107,7 +134,7 @@ export default function DisplayList() {
             numColumns={2}
             data={result}
             renderItem={({ item }: { item: Asset }) => (
-              <AssetCard asset={item} />
+              <AssetCard asset={item} onDelete={() => confirmDeleteAsset(item)} />
             )}
             keyExtractor={item => item.asset_id.toString()}
           />
@@ -205,7 +232,7 @@ export default function DisplayList() {
                     }
                     size={24}
                   />
-                  <Text style={{ fontSize: 20, marginLeft: 10 }}>Due</Text>
+                  <Text style={styles.filterOptions}>Due</Text>
                 </Pressable>
               </View>
               <View
@@ -223,7 +250,7 @@ export default function DisplayList() {
                     }
                     size={24}
                   />
-                  <Text style={{ fontSize: 20, marginLeft: 10 }}>Pending</Text>
+                  <Text style={styles.filterOptions}>Pending</Text>
                 </Pressable>
               </View>
               <View style={{ marginLeft: 25, marginTop: 10 }}>
@@ -239,7 +266,7 @@ export default function DisplayList() {
                     }
                     size={24}
                   />
-                  <Text style={{ fontSize: 20, marginLeft: 10 }}>
+                  <Text style={styles.filterOptions}>
                     Completed
                   </Text>
                 </Pressable>
@@ -256,7 +283,7 @@ export default function DisplayList() {
                     }
                     size={24}
                   />
-                  <Text style={{ fontSize: 20, marginLeft: 10 }}>Zone 1</Text>
+                  <Text style={styles.filterOptions}>Zone 1</Text>
                 </Pressable>
               </View>
               <View
@@ -272,7 +299,7 @@ export default function DisplayList() {
                     }
                     size={24}
                   />
-                  <Text style={{ fontSize: 20, marginLeft: 10 }}>Zone 2</Text>
+                  <Text style={styles.filterOptions}>Zone 2</Text>
                 </Pressable>
               </View>
               <View
@@ -288,7 +315,7 @@ export default function DisplayList() {
                     }
                     size={24}
                   />
-                  <Text style={{ fontSize: 20, marginLeft: 10 }}>Zone 3</Text>
+                  <Text style={styles.filterOptions}>Zone 3</Text>
                 </Pressable>
               </View>
               <View
@@ -317,34 +344,31 @@ export default function DisplayList() {
             </View>
           </View>
         ) : (
-          <View style={styles.floatingIcon}>
-            <Pressable
-              onPress={() => {
-                navigation.navigate('AssetForm', {
-                  mode: 'create',
-                });
-              }}>
-               <MaterialIcons name="add-home" color={colors.primary} size={50} />
-            </Pressable>
-          </View>
+          <TouchableOpacity style={styles.floatingButton} 
+          onPress={()  => {navigation.navigate('AssetForm', { mode: 'create' })}}>
+          <MaterialIcons name="add" size={40} color= "white"/>
+          </TouchableOpacity>
         )}
       </SafeAreaView>
     </SafeAreaProvider>
   );
 }
 const styles = StyleSheet.create({
-  floatingIcon: {
-    alignSelf: 'flex-end',
-    height: 70,
-    width: 70,
-    borderWidth: 1,
-    borderRadius: spacing.lg,
-    borderColor: colors.borderDark,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 80,
-    marginRight: 10,
-    backgroundColor: colors.primaryLight,
+  floatingButton: {
+    backgroundColor: colors.info, // Replace with your primary color
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 40,
+    right: 30,
+    elevation: 5, // For Android shadow
+    shadowColor: "#000", // For iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   container: {
     flex: 1,
