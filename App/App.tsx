@@ -1,11 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
-import { createAsset, getAssets } from './src/repositories/buildingAssets';
-import { useEffect, useState } from 'react';
-import { Asset } from './src/models/Asset';
+import { captureImage } from './src/services/cameraService';
 export default function App() {
-  
+  captureImage();
   return (
     <>
       <NavigationContainer>

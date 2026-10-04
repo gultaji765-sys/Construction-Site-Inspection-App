@@ -395,6 +395,7 @@ const styles = StyleSheet.create({
   searchInput: {
     ...typography.body,
     flex: 1,
+    backgroundColor: colors.surface,
     color: colors.textSecondary,
     paddingHorizontal: spacing.sm,
   },

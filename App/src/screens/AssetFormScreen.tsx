@@ -23,6 +23,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getLocation } from '../services/locationServices';
 import { PermissionsAndroid, Platform } from 'react-native';
+import getCurrentTimestamp from '../utils/dateUtils';
 
 type AssetFormRouteProp = RouteProp<RootStackList, 'AssetForm'>;
 const projects = [234, 345, 456, 678].map(projectId => ({
@@ -109,7 +110,6 @@ async function handleSave(
         stage,
         'Due',
         notes,
-        'wtf',
       );
       Alert.alert('Success', 'Asset Updated Successfully', [
         {
@@ -130,8 +130,6 @@ async function handleSave(
         'Due',
         notes,
         0,
-        'here',
-        'wtf',
       );
       Alert.alert('Success', 'Asset Created Successfully', [
         {
@@ -174,9 +172,9 @@ export default function AssetFormScreen() {
   const [longitude, setLongitude] = useState('');
   const [isLocating, setIsLocating] = useState(false);
   const [notes, setNotes] = useState('');
+  const [updatedAt, setUpdatedAt] = useState('');
   const isEditing = params.mode === 'edit';
   const navigation = useNavigation<NativeStackNavigationProp<RootStackList>>();
-  
   useEffect(() => {
     if (isEditing && params.assetId !== undefined) {
       const asset_id = params.assetId;
@@ -192,6 +190,7 @@ export default function AssetFormScreen() {
           setLatitude(String(getParams?.gps_latitude));
           setLongitude(String(getParams?.gps_longitude));
           setNotes(String(getParams?.notes));
+          setUpdatedAt(String(getParams?.updated_at));
         } catch (error) {
           console.log(error);
         }

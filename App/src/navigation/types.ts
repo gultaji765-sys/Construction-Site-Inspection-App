@@ -9,7 +9,10 @@ export  type RootStackList = {
   AssetForm: {
     mode: 'create' | 'edit';
     assetId? : number
-  }
+  };
+  InspectionForm: {
+    assetId: number;
+  };
 };
 
 

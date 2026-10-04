@@ -8,6 +8,7 @@ import { getAssetById, createAsset, updateAsset, deleteAsset } from '../reposito
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { getLocation } from '../services/locationServices'
+import getCurrentTimestamp from '../utils/dateUtils';
 
 type AssetDetailsRouteProp = RouteProp<
   RootStackList,
@@ -41,7 +42,7 @@ export default function AssetDetails() {
       </View>
     );
   }
-
+  console.log('Asset from SQLite:', asset);
   return (
     <ScrollView
       style={styles.screen}
@@ -75,6 +76,7 @@ export default function AssetDetails() {
         <DetailRow label="Floor" value={String(asset.floor_number)} />
         <DetailRow label="Zone" value={asset.zone} />
         <DetailRow label="Project ID" value={String(asset.project_id)} />
+        <DetailRow label="Created At" value={String(asset.created_at)} />
       </View>
 
       <View style={styles.notesCard}>
@@ -84,7 +86,9 @@ export default function AssetDetails() {
         </Text>
       </View>
       <View style={styles.button}>
-        <Button title="Start Inspection" />
+        <Button title="Start Inspection" 
+          onPress={() => navigation.navigate('InspectionForm', { assetId: asset.asset_id })}
+        />
       </View>
     </ScrollView>
   );

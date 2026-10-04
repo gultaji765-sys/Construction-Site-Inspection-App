@@ -1,5 +1,6 @@
 import { open, NitroSQLiteConnection } from 'react-native-nitro-sqlite';
 import { Asset } from '../models/Asset';
+import getCurrentTimestamp from '../utils/dateUtils';
 
 let db: NitroSQLiteConnection | null = null;
 let dbInitialization: Promise<NitroSQLiteConnection> | null = null;
@@ -132,9 +133,8 @@ export async function createAsset(
     inspection_status: string,
     notes: string,
     is_deleted: number,
-    created_at: string,
-    updated_at: string,
 ){
+    const timeStamp = getCurrentTimestamp();
     try{
         const db = await getDb();
         await db.executeAsync(`
@@ -147,7 +147,7 @@ export async function createAsset(
             [project_id, building_name, building_code,
             floor_number, zone, gps_latitude,
             gps_longitude, construction_stage, inspection_status,
-            notes, is_deleted, created_at, updated_at],
+            notes, is_deleted, timeStamp, timeStamp],
         );
     }catch(error){
         throw new Error('Failed to insert '+ error);
@@ -166,8 +166,8 @@ export async function updateAsset(
   construction_stage: string,
   inspection_status: string,
   notes: string,
-  updated_at: string,
 ) {
+  const timeStamp = getCurrentTimestamp();
   try {
     const db = await getDb();
 
@@ -197,7 +197,7 @@ export async function updateAsset(
         construction_stage,
         inspection_status,
         notes,
-        updated_at,
+        timeStamp,
         asset_id,
       ],
     );
